@@ -1,0 +1,56 @@
+#!/bin/sh
+set -e
+
+# source common functions; exit if missing
+if [[ -f ~/bin/common ]]; then source ~/bin/common; else echo "ERROR: ~/bin/common missing"; exit 1; fi
+NOPREFIX=1
+DEBUG=
+
+SERVICE=redis
+USER=$(id --user --name)
+GROUP=$(id --group --name)
+BASEDIR=/opt
+REDISDIR=${BASEDIR}/${SERVICE}
+REDISCFGDIR=/etc/${SERVICE}
+
+
+# functions ----------
+function install_redis {
+	log DEBUG "install_redis"
+	if ! [[ $(which redis-server 2> /dev/null) ]]; then
+		log INFO "Installing redis"
+		sudo dnf install -y redis
+		sudo usermod -aG redis ${USER}
+	else
+		log WARNING "redis already installed"
+	fi
+	sudo chown -R redis:redis /var/log/redis/
+	sudo chmod g+r /var/log/redis/
+	if ! [[ -d /etc/redis/_original/ ]]; then
+		log INFO "Removing redis defaults"
+		sudo mkdir /etc/redis/_original
+		sudo mv /etc/redis/* /etc/redis/_original/ 2> /dev/null
+	fi
+}
+
+function configure_selinux {
+	log DEBUG "configure_selinux"
+	[[ -d ${REDISDIR} ]] || sudo mkdir -p ${REDISDIR}
+	[[ -d ${REDISCFGDIR} ]] || sudo mkdir -p ${REDISCFGDIR}
+	log INFO "Add redis ${REDISDIR} policy"
+	sudo semanage fcontext -a -t redis_var_lib_t ${REDISDIR}'(/.*)?'
+}
+
+function restore_redis_selinux {
+	log DEBUG "restore_redis_selinux"
+	sudo restorecon -Rv /etc/redis/
+	sudo restorecon -Rv /opt/redis/
+}
+
+# script -------------
+ensure_not_root
+install_redis
+configure_selinux
+copy_directory fs
+restore_redis_selinux
+log_stop

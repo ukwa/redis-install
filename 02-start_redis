@@ -1,0 +1,23 @@
+#!/bin/env bash
+
+# source common or die
+if [[ -f ~/bin/common ]]; then source ~/bin/common; else echo "ERROR: ~/bin/common missing"; exit 1; fi
+
+
+# globals -----
+NOPREFIX=1
+DEBUG=
+
+
+# script -----
+ocStatus=$(systemctl is-active redis.service)
+if [[ ${ocStatus} != 'active' ]]; then
+	log INFO "Enabling and starting redis"
+	sudo systemctl daemon-reload
+	sudo systemctl enable redis
+	sudo systemctl start redis
+fi
+
+systemctl status redis
+
+log_stop
