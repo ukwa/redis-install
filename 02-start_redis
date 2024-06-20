@@ -5,19 +5,20 @@ if [[ -f ~/bin/common ]]; then source ~/bin/common; else echo "ERROR: ~/bin/comm
 
 
 # globals -----
+SERVICE=redis
 NOPREFIX=1
 DEBUG=
 
 
 # script -----
-ocStatus=$(systemctl is-active redis.service)
-if [[ ${ocStatus} != 'active' ]]; then
-	log INFO "Enabling and starting redis"
-	sudo systemctl daemon-reload
-	sudo systemctl enable redis
-	sudo systemctl start redis
+sudo systemctl daemon-reload
+
+status=$(systemctl is-active ${SERVICE}.service)
+if [[ ${status} != 'active' ]]; then
+	log INFO "Enabling and starting ${SERVICE}"
+	sudo systemctl enable ${SERVICE}
+	sudo systemctl start ${SERVICE}
 fi
 
-systemctl status redis
-
+systemctl status ${SERVICE}
 log_stop
