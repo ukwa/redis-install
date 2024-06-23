@@ -29,12 +29,16 @@ function install_redis {
 	[[ -d ${REDISDATADIR} ]] || sudo mkdir -p ${REDISDATADIR}
 	[[ -d ${REDISCFGDIR} ]] || sudo mkdir -p ${REDISCFGDIR}
 	[[ -d ${REDISLOGDIR} ]] || sudo mkdir -p ${REDISLOGDIR}
-	sudo chown -R redis:redis ${REDISDATADIR} ${REDISCFGDIR} ${REDISLOGDIR}
 	if ! [[ -d /etc/redis/_original/ ]]; then
 		log INFO "Removing redis defaults"
 		sudo mkdir /etc/redis/_original
 		sudo mv /etc/redis/* /etc/redis/_original/ 2> /dev/null
 	fi
+}
+
+function amend_permissions {
+	log DEBUG "amend_permissions"
+	sudo chown -R redis:redis ${REDISDATADIR} ${REDISCFGDIR} ${REDISLOGDIR}
 }
 
 function configure_selinux {
@@ -53,5 +57,6 @@ function configure_selinux {
 ensure_not_root
 install_redis
 copy_directory fs
+amend_permissions
 configure_selinux
 log_stop
