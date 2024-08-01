@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # source common functions; exit if missing
-if [[ -f ~/bin/common ]]; then source ~/bin/common; else echo "ERROR: ~/bin/common missing"; exit 1; fi
+if [[ -f ${UKWACOMMONDIR}/common.sh ]]; then source ${UKWACOMMONDIR}/common.sh; else echo "ERROR: ${UKWACOMMONDIR}/common.sh missing"; exit 1; fi
 NOPREFIX=1
 DEBUG=
 
