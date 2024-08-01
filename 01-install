@@ -7,7 +7,6 @@ DEBUG=
 
 SERVICE=redis
 USER=$(id --user --name)
-GROUP=$(id --group --name)
 BASEDIR=/opt
 REDISDATADIR=${BASEDIR}/${SERVICE}
 REDISCFGDIR=/etc/${SERVICE}
